@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hermes-webui"
-description = "Hermes WebUI server and static runtime"
+description = "Agent server and static runtime"
 readme = "README.md"
 license = {text = "MIT"}
-authors = [{name = "Hermes WebUI contributors"}]
+authors = [{name = "Agent contributors"}]
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.11",

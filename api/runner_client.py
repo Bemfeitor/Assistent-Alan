@@ -107,7 +107,7 @@ class HttpRunnerClient:
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "User-Agent": "Hermes-WebUI-RunnerClient",
+            "User-Agent": "Agent-RunnerClient",
         }
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"

@@ -1306,11 +1306,11 @@ def _run_gateway_lifecycle_command(action: str) -> subprocess.CompletedProcess:
 
     agent_dir = getattr(api_config, "_AGENT_DIR", None)
     if not agent_dir:
-        raise FileNotFoundError("Hermes agent checkout not found")
+        raise FileNotFoundError("Agent checkout not found")
     agent_dir = Path(agent_dir).expanduser().resolve()
     main_py = agent_dir / "hermes_cli" / "main.py"
     if not main_py.exists():
-        raise FileNotFoundError("Hermes agent CLI entrypoint not found")
+        raise FileNotFoundError("Agent CLI entrypoint not found")
 
     cmd = [str(getattr(api_config, "PYTHON_EXE", sys.executable)), str(main_py)]
     profile_name = ""
@@ -11580,7 +11580,7 @@ def _build_llm_wiki_status() -> dict:
             "path_configured": path_configured,
             "path_source": path_source,
             "toggle_available": False,
-            "toggle_reason": "Hermes Agent exposes WIKI_PATH/wiki.path for location, but no stable on/off config flag is currently available.",
+            "toggle_reason": "Agent exposes WIKI_PATH/wiki.path for location, but no stable on/off config flag is currently available.",
             "docs_url": _LLM_WIKI_DOCS_URL,
         }
         if not wiki_path.exists():
@@ -12659,11 +12659,11 @@ _SHELL_ERROR_HTML = """<!doctype html>
 <head>
   <meta charset=\"utf-8\">
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-  <title>Hermes is restarting</title>
+  <title>Agent is restarting</title>
 </head>
 <body style=\"margin:0;padding:2rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#111827;color:#e5e7eb;\">
   <main style=\"max-width:40rem;margin:10vh auto;line-height:1.5;\">
-    <h1 style=\"font-size:1.5rem;margin:0 0 0.75rem;\">Hermes is restarting…</h1>
+    <h1 style=\"font-size:1.5rem;margin:0 0 0.75rem;\">Agent is restarting…</h1>
     <p style=\"margin:0;color:#cbd5e1;\">The WebUI shell could not load cleanly. Refresh in a moment if this page does not update automatically.</p>
   </main>
 </body>
@@ -12729,7 +12729,7 @@ def _handle_shutdown(handler) -> bool:
 
 
 def _handle_health_restart(handler) -> bool:
-    """Restart the Hermes messaging gateway service."""
+    """Restart the Agent messaging gateway service."""
     outcome = restart_active_profile_gateway()
 
     if outcome.get("status") == "completed":
@@ -13495,7 +13495,7 @@ def handle_get(handler, parsed) -> bool:
 
     if parsed.path == "/login":
         _settings = load_settings()
-        _bn = _html.escape(_settings.get("bot_name") or "Hermes")
+        _bn = _html.escape(_settings.get("bot_name") or "Agent")
         _lang = _settings.get("language", "en")
         _login_strings = _LOGIN_LOCALE[
             _resolve_login_locale_key(_lang)
@@ -16695,7 +16695,7 @@ def handle_post(handler, parsed) -> bool:
         )
 
         if "bot_name" in body:
-            body["bot_name"] = (str(body["bot_name"]) or "").strip() or "Hermes"
+            body["bot_name"] = (str(body["bot_name"]) or "").strip() or "Agent"
 
         auth_enabled_before = is_auth_enabled()
         password_auth_enabled_before = auth_enabled_before and get_password_hash() is not None

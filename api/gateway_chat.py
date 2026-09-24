@@ -418,7 +418,7 @@ def _gateway_http_error_event(exc: urllib.error.HTTPError, err_body: str, *, api
                 "Set HERMES_WEBUI_GATEWAY_API_KEY to the same value as the Hermes Gateway "
                 "API_SERVER_KEY, or disable HERMES_WEBUI_CHAT_BACKEND=gateway."
                 if not api_key_configured
-                else "Check that HERMES_WEBUI_GATEWAY_API_KEY matches the Hermes Gateway API_SERVER_KEY."
+                else "Check that HERMES_WEBUI_GATEWAY_API_KEY matches the Agent Gateway API_SERVER_KEY."
             ),
         }
     return {
@@ -1093,11 +1093,11 @@ def _run_gateway_chat_streaming(
                 if not hasattr(s, "_approval_notice_emitted"):
                     s._approval_notice_emitted = False
                 if not s._approval_notice_emitted:
-                    approval_message = "Approvals require a newer gateway. Upgrade the connected Hermes gateway to enable this."
+                    approval_message = "Approvals require a newer gateway. Upgrade the connected Agent gateway to enable this."
                     approval_type = "approval_gateway_unsupported"
                     if approval_reason == "unreachable":
                         approval_type = "approval_gateway_offline"
-                        approval_message = "Gateway connection failed. Check that the connected Hermes gateway is running and reachable."
+                        approval_message = "Gateway connection failed. Check that the connected Agent gateway is running and reachable."
                     put_gateway_event("warning", {
                         "type": approval_type,
                         "message": approval_message,
@@ -1262,7 +1262,7 @@ def _run_gateway_chat_streaming(
                 "label": "Gateway returned no response",
                 "type": "gateway_empty_response",
                 "message": "Gateway returned no assistant message for this turn.",
-                "hint": "Check that Hermes Gateway API server is running and reachable.",
+                "hint": "Check that Agent Gateway API server is running and reachable.",
             })
             return
         with _get_session_agent_lock(session_id):

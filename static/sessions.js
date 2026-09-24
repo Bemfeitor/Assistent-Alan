@@ -4695,7 +4695,7 @@ function _syncSessionShareState(session, nextSession){
   if(S.session&&S.session.session_id===session.session_id){
     S.session.share_token=session.share_token;
     S.session.share_created_at=session.share_created_at;
-    if(typeof _syncHermesPanelSessionActions==='function') _syncHermesPanelSessionActions();
+    if(typeof _syncAgentPanelSessionActions==='function') _syncAgentPanelSessionActions();
   }
   renderSessionListFromCache();
   void renderSessionList();
@@ -7291,7 +7291,7 @@ function _sessionDisplayTitle(s){
 
 function _sessionTitleIsDefaultWebUI(rawTitle){
   const title=String(rawTitle||'').replace(/\s+/g,' ').trim();
-  return title==='Hermes WebUI'||/^Hermes WebUI #\d+$/.test(title);
+  return title==='Agent'||/^Agent #\d+$/.test(title);
 }
 
 function _sessionTitleTags(rawTitle){

@@ -303,7 +303,7 @@ def _codex_usage_headers(access_token):
     headers = {
         "Authorization": "Bearer " + access_token,
         "Accept": "application/json",
-        "User-Agent": "codex_cli_rs/0.0.0 (Hermes WebUI)",
+        "User-Agent": "codex_cli_rs/0.0.0 (Agent)",
         "originator": "codex_cli_rs",
     }
     auth_claim = _jwt_claims(access_token).get("https://api.openai.com/auth")

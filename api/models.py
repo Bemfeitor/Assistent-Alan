@@ -5937,9 +5937,9 @@ def agent_session_row_exists(session_id: str, *, profile=None) -> bool:
 
 def _sidebar_title_is_generic_webui(title: str | None) -> bool:
     text = ' '.join(str(title or '').split())
-    if text == 'Hermes WebUI':
+    if text == 'Agent':
         return True
-    prefix = 'Hermes WebUI #'
+    prefix = 'Agent #'
     return text.startswith(prefix) and text[len(prefix):].isdigit()
 
 

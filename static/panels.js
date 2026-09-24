@@ -996,12 +996,12 @@ function _cronGatewayNoticeHtml(status) {
         ? 'Gateway endpoint not reachable'
         : 'Gateway not running';
   const body = notConfigured
-    ? 'In Hermes WebUI, scheduled jobs require the Hermes gateway daemon. If this is a single-container Docker install, jobs can be created and run manually here, but scheduled ticks need a gateway container or `hermes gateway` running outside the WebUI.'
+    ? 'In Agent, scheduled jobs require the Agent gateway daemon. If this is a single-container Docker install, jobs can be created and run manually here, but scheduled ticks need a gateway container or `hermes gateway` running outside the WebUI.'
     : isStaleMetadata
       ? 'The gateway is marked as configured, but its health metadata has gone stale. In Docker, scheduled jobs require a live gateway daemon that refreshes runtime metadata while ticking cron.'
       : isRemoteUnreachable
-        ? 'The gateway health endpoint is not reachable from WebUI. Verify the configured gateway URL env var (`GATEWAY_HEALTH_URL`, `HERMES_GATEWAY_HEALTH_URL`, `HERMES_API_URL`, or `HERMES_WEBUI_GATEWAY_BASE_URL`) points to a reachable gateway service and network path before relying on cron ticking.'
-        : 'In Hermes WebUI, scheduled jobs require the Hermes gateway daemon to be running. Start the gateway container or `hermes gateway` before relying on offline scheduled runs.';
+        ? 'The gateway health endpoint is not reachable from Agent. Verify the configured gateway URL env var (`GATEWAY_HEALTH_URL`, `HERMES_GATEWAY_HEALTH_URL`, `HERMES_API_URL`, or `HERMES_WEBUI_GATEWAY_BASE_URL`) points to a reachable gateway service and network path before relying on cron ticking.'
+        : 'In Agent, scheduled jobs require the Agent gateway daemon to be running. Start the gateway container or `hermes gateway` before relying on offline scheduled runs.';
   const docsHref = 'https://github.com/nesquena/hermes-webui/blob/master/docs/docker.md#scheduled-jobs-and-the-gateway-daemon';
   const helpLink = notConfigured || isRemoteUnreachable || isStaleMetadata
     ? `<p><a href="${docsHref}" target="_blank" rel="noopener">How to enable scheduled jobs in Docker ↗</a></p>`
@@ -3266,7 +3266,7 @@ async function _kanbanPopulateAssigneeSelect(currentValue){
   // it last so the default-selected option is the first profile, not "no one".
   let html = '';
   if (profiles.length) {
-    html += `<optgroup label="${esc(t('kanban_assignee_profiles_label') || 'Hermes profiles')}">`;
+    html += `<optgroup label="${esc(t('kanban_assignee_profiles_label') || 'Agent profiles')}">`;
     html += profiles.map(v => `<option value="${esc(v)}"${v === currentValue ? ' selected' : ''}>${esc(v)}</option>`).join('');
     html += '</optgroup>';
   }
@@ -4500,7 +4500,7 @@ function _renderLlmWikiStatus(d) {
   // becomes config-driven. esc() HTML-escapes but doesn't validate URL scheme.
   const docsUrl = /^https?:\/\//i.test(rawDocsUrl) ? rawDocsUrl : '#';
   const toggleNote = status.toggle_available
-    ? 'Toggle available from configured Hermes Agent setting.'
+    ? 'Toggle available from configured Agent setting.'
     : (status.toggle_reason || 'No stable LLM Wiki on/off config flag was detected, so this panel is read-only.');
   const statusNote = isReady
     ? 'LLM Wiki is configured and page metadata is visible without exposing wiki content.'
@@ -7520,8 +7520,8 @@ let _settingsDirty = false;
 let _settingsThemeOnOpen = null; // track theme at open time for discard revert
 let _settingsSkinOnOpen = null; // track skin at open time for discard revert
 let _settingsFontSizeOnOpen = null; // track font size at open time for discard revert
-let _settingsHermesDefaultModelOnOpen = '';
-let _settingsHermesDefaultModelProviderOnOpen = null;
+let _settingsAgentDefaultModelOnOpen = '';
+let _settingsAgentDefaultModelProviderOnOpen = null;
 let _settingsSection = 'conversation';
 let _currentSettingsSection = 'conversation';
 let _settingsIndex = null;
@@ -7777,7 +7777,33 @@ function _ensureComposerControlVisibilityState(settings){
   Object.assign(window._composerControlVisibility, fromSettings);
 }
 
+const _FALLBACK_COMPOSER_CONTROL_TOGGLE_DEFS=[
+  {key:'hide_composer_attach',label:'Attach',labelKey:'composer_control_attach',selectors:['#btnAttach'],orderSelector:'#btnAttach',orderGroup:'left'},
+  {key:'hide_composer_saved_prompts',label:'Saved prompts',labelKey:'composer_control_saved_prompts',selectors:['#btnSavedPrompts'],orderSelector:'#btnSavedPrompts',orderGroup:'left'},
+  {key:'hide_composer_mic',label:'Mic',labelKey:'composer_control_mic',selectors:['#btnMic'],orderSelector:'#btnMic',orderGroup:'left'},
+  {key:'hide_composer_profile',label:'Profile',labelKey:'composer_control_profile',selectors:['#profileChipWrap'],orderSelector:'#profileChipWrap',orderGroup:'left'},
+  {key:'hide_composer_workspace',label:'Workspace',labelKey:'composer_control_workspace',selectors:['.composer-ws-wrap','#composerMobileWorkspaceAction'],orderSelector:'.composer-ws-wrap',orderGroup:'left'},
+  {key:'hide_composer_model',label:'Model',labelKey:'composer_control_model',selectors:['.composer-model-wrap','#composerMobileModelAction'],orderSelector:'.composer-model-wrap',orderGroup:'left'},
+  {key:'hide_composer_reasoning',label:'Reasoning',labelKey:'composer_control_reasoning',selectors:['#composerReasoningWrap','#composerMobileReasoningAction'],orderSelector:'#composerReasoningWrap',orderGroup:'left'},
+  {key:'hide_composer_context',label:'Context',labelKey:'composer_control_context',selectors:['#ctxIndicatorWrap','#composerMobileContextAction'],orderSelector:'#ctxIndicatorWrap',orderGroup:'right'},
+];
+const _FALLBACK_COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS=[
+  {key:'hide_composer_voice_mode',label:'Voice mode',labelKey:'composer_control_voice_mode',selectors:['#btnVoiceMode'],orderSelector:'#btnVoiceMode',orderGroup:'left'},
+  {key:'hide_composer_yolo',label:'YOLO',labelKey:'composer_control_yolo',selectors:['#yoloPill'],orderSelector:'#yoloPill',orderGroup:'left'},
+  {key:'hide_composer_bg_badge',label:'Background badge',labelKey:'composer_control_bg_badge',selectors:['#bgBadge'],orderSelector:'#bgBadge',orderGroup:'right'},
+  {key:'hide_composer_mobile_config',label:'Mobile config',labelKey:'composer_control_mobile_config',selectors:['#composerMobileConfigBtn'],orderSelector:'#composerMobileConfigBtn',orderGroup:'left'},
+  {key:'hide_composer_quota_chip',label:'Quota chip',labelKey:'composer_control_quota_chip',selectors:['#providerQuotaChip','#composerMobileQuotaAction'],orderSelector:'#providerQuotaChip',orderGroup:'left'},
+  {key:'hide_composer_toolsets',label:'Toolsets',labelKey:'composer_control_toolsets',selectors:['#composerToolsetsWrap'],orderSelector:'#composerToolsetsWrap',orderGroup:'left'},
+  {key:'hide_composer_status',label:'Status',labelKey:'composer_control_status',selectors:['#composerStatus'],orderSelector:'#composerStatus',orderGroup:'right'},
+];
+
 function _composerControlDefsForSettings(){
+  if(!Array.isArray(window._COMPOSER_CONTROL_TOGGLE_DEFS)){
+    window._COMPOSER_CONTROL_TOGGLE_DEFS=_FALLBACK_COMPOSER_CONTROL_TOGGLE_DEFS;
+  }
+  if(!Array.isArray(window._COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS)){
+    window._COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS=_FALLBACK_COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS;
+  }
   const baseDefs=Array.isArray(window._COMPOSER_CONTROL_TOGGLE_DEFS)?window._COMPOSER_CONTROL_TOGGLE_DEFS:[];
   const situationalDefs=Array.isArray(window._COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS)?window._COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS:[];
   return baseDefs.concat(situationalDefs);
@@ -7785,15 +7811,21 @@ function _composerControlDefsForSettings(){
 
 function _getComposerControlOrder(){
   if(Array.isArray(window._composerControlOrder)){
-    return typeof window._sanitizeComposerControlOrder==='function'
-      ? window._sanitizeComposerControlOrder(window._composerControlOrder)
-      : window._composerControlOrder.slice();
+    try{
+      return typeof window._sanitizeComposerControlOrder==='function'
+        ? window._sanitizeComposerControlOrder(window._composerControlOrder)
+        : window._composerControlOrder.slice();
+    }catch(_){
+      return window._composerControlOrder.slice();
+    }
   }
   try{
     const raw=localStorage.getItem(_COMPOSER_CONTROL_ORDER_LS_KEY);
     if(raw){
       const parsed=JSON.parse(raw);
-      if(typeof window._sanitizeComposerControlOrder==='function') return window._sanitizeComposerControlOrder(parsed);
+      try{
+        if(typeof window._sanitizeComposerControlOrder==='function') return window._sanitizeComposerControlOrder(parsed);
+      }catch(_){}
       if(Array.isArray(parsed)) return parsed.filter(key=>typeof key==='string');
     }
   }catch(e){}
@@ -7801,9 +7833,14 @@ function _getComposerControlOrder(){
 }
 
 function _setComposerControlOrder(order){
-  const sanitized=typeof window._sanitizeComposerControlOrder==='function'
-    ? window._sanitizeComposerControlOrder(order)
-    : (Array.isArray(order)?order.filter(key=>typeof key==='string') : []);
+  let sanitized;
+  try{
+    sanitized=typeof window._sanitizeComposerControlOrder==='function'
+      ? window._sanitizeComposerControlOrder(order)
+      : (Array.isArray(order)?order.filter(key=>typeof key==='string') : []);
+  }catch(_){
+    sanitized=Array.isArray(order)?order.filter(key=>typeof key==='string') : [];
+  }
   window._composerControlOrder=sanitized;
   try{localStorage.setItem(_COMPOSER_CONTROL_ORDER_LS_KEY,JSON.stringify(sanitized));}catch(e){}
   return sanitized;
@@ -8323,7 +8360,7 @@ function _highlightSettingsField(el) {
   setTimeout(() => el.classList.remove('settings-field-highlight'), 1800);
 }
 
-function _syncHermesPanelSessionActions(){
+function _syncAgentPanelSessionActions(){
   const hasSession=!!S.session;
   const visibleMessages=hasSession?(S.messages||[]).filter(m=>m&&m.role&&m.role!=='tool').length:0;
   const title=hasSession?(S.session.title||t('untitled')):t('active_conversation_none');
@@ -8942,8 +8979,8 @@ async function _autosavePreferencesSettings(payload){
       : {model:String((modelSel&&modelSel.value)||''),model_provider:null};
     const modelDirty=!!(
       modelSel&&(
-        (modelState.model||'')!==(_settingsHermesDefaultModelOnOpen||'')||
-        ((modelState.model_provider||null)!==(_settingsHermesDefaultModelProviderOnOpen||null))
+        (modelState.model||'')!==(_settingsAgentDefaultModelOnOpen||'')||
+        ((modelState.model_provider||null)!==(_settingsAgentDefaultModelProviderOnOpen||null))
       )
     );
     if(!pwDirty&&!modelDirty){
@@ -9225,14 +9262,18 @@ async function loadSettingsPanel(){
         _scheduleAppearanceAutosave();
       };
     }
-    _ensureComposerControlVisibilityState(settings);
-    if(Array.isArray(settings.composer_control_order)){
-      const composerOrder=_setComposerControlOrder(settings.composer_control_order);
-      if(typeof window._applyComposerControlOrder==='function') window._applyComposerControlOrder(composerOrder);
+    try{
+      _ensureComposerControlVisibilityState(settings);
+      if(Array.isArray(settings.composer_control_order)){
+        const composerOrder=_setComposerControlOrder(settings.composer_control_order);
+        if(typeof window._applyComposerControlOrder==='function') window._applyComposerControlOrder(composerOrder);
+      }
+      _renderComposerControlChips();
+      _renderComposerSituationalControlChips();
+      if(typeof _applyComposerFooterVisibilitySettings==='function') _applyComposerFooterVisibilitySettings();
+    }catch(err){
+      console.warn('[settings] composer control initialization error:', err);
     }
-    _renderComposerControlChips();
-    _renderComposerSituationalControlChips();
-    if(typeof _applyComposerFooterVisibilitySettings==='function') _applyComposerFooterVisibilitySettings();
     // Tab visibility/order chips (dynamically populated from DOM)
     var hiddenTabs=[];
     if(Array.isArray(settings.hidden_tabs)){
@@ -9290,17 +9331,17 @@ async function loadSettingsPanel(){
           _fetchLiveModels(models.active_provider, modelSel);
         }
       }catch(e){}
-      _settingsHermesDefaultModelOnOpen=(models&&models.default_model)||'';
-      _settingsHermesDefaultModelProviderOnOpen=(models&&models.active_provider)||null;
+      _settingsAgentDefaultModelOnOpen=(models&&models.default_model)||'';
+      _settingsAgentDefaultModelProviderOnOpen=(models&&models.active_provider)||null;
       // Use the smart matcher so a saved bare form like "anthropic/claude-opus-4.6"
       // (what the CLI's `hermes model` command writes) still selects the matching
       // `@nous:anthropic/claude-opus-4.6` option on a Nous setup. Without this, the
       // picker renders blank for any user whose default was persisted without the
       // @-prefix — CLI-first users, legacy installs, etc.
       if(typeof _applyModelToDropdown==='function'){
-        _applyModelToDropdown(_settingsHermesDefaultModelOnOpen, modelSel, (models&&models.active_provider)||window._activeProvider||null);
+        _applyModelToDropdown(_settingsAgentDefaultModelOnOpen, modelSel, (models&&models.active_provider)||window._activeProvider||null);
       }else{
-        modelSel.value=_settingsHermesDefaultModelOnOpen;
+        modelSel.value=_settingsAgentDefaultModelOnOpen;
       }
       if(typeof closeSettingsModelDropdown==='function') closeSettingsModelDropdown();
       if(typeof mountSettingsModelPicker==='function') mountSettingsModelPicker();
@@ -9320,12 +9361,11 @@ async function loadSettingsPanel(){
     const langSel=$('settingsLanguage');
     if(langSel){
       langSel.innerHTML='';
-      if(typeof LOCALES!=='undefined'){
-        for(const [code,bundle] of Object.entries(LOCALES)){
-          const opt=document.createElement('option');
-          opt.value=code;opt.textContent=bundle._label||code;
-          langSel.appendChild(opt);
-        }
+      const localesObj=(typeof LOCALES!=='undefined')?LOCALES:(window.LOCALES||{});
+      for(const [code,bundle] of Object.entries(localesObj)){
+        const opt=document.createElement('option');
+        opt.value=code;opt.textContent=bundle._label||code;
+        langSel.appendChild(opt);
       }
       langSel.value=resolvedLanguage;
       langSel.addEventListener('change',function(){
@@ -9569,7 +9609,7 @@ async function loadSettingsPanel(){
     // TTS engine selector
     const ttsEngineSel=$('settingsTtsEngine');
     if(ttsEngineSel){
-      // Re-add any extension-registered TTS engines (window.registerHermesTtsEngine)
+      // Re-add any extension-registered TTS engines (window.registerAgentTtsEngine)
       // as options — the <select> markup only hardcodes the built-ins, and this
       // settings panel can render after an extension registered its engine.
       if(typeof window._hermesTtsEngineOptions==='function'){
@@ -9706,7 +9746,7 @@ async function loadSettingsPanel(){
     // Bot name — debounced autosave (text input)
     const botNameField=$('settingsBotName');
     if(botNameField){
-      botNameField.value=settings.bot_name||'Hermes';
+      botNameField.value=settings.bot_name||'Agent';
       let botNameTimer=null;
       botNameField.addEventListener('input',()=>{
         if(botNameTimer) clearTimeout(botNameTimer);
@@ -9751,7 +9791,7 @@ async function loadSettingsPanel(){
       const disableBtn=$('btnDisableAuth');
       if(disableBtn) disableBtn.style.display='none';
     }
-    _syncHermesPanelSessionActions();
+    _syncAgentPanelSessionActions();
     if(typeof loadDashboardSettings==='function') loadDashboardSettings();
     loadProvidersPanel(); // load provider cards in background
     loadPluginsPanel(); // load plugin/hook visibility in background
@@ -9816,8 +9856,8 @@ function _extensionEntryBadge(entry){
 }
 
 function _configureExtensionSettingsFromStatus(data){
-  if(!window.HermesExtensionSettings||!data||!Array.isArray(data.extensions)) return;
-  window.HermesExtensionSettings.primeFromStatus({extensions:data.extensions});
+  if(!window.AgentExtensionSettings||!data||!Array.isArray(data.extensions)) return;
+  window.AgentExtensionSettings.primeFromStatus({extensions:data.extensions});
 }
 
 function _extensionSettingsFieldHtml(field,value){
@@ -9851,7 +9891,7 @@ function _extensionSettingsControls(entry){
   if(!storageOwned){
     return '<div class="extension-settings-empty">No extension-owned browser storage permission.</div>';
   }
-  const settingsApi=window.HermesExtensionSettings&&id?window.HermesExtensionSettings.settingsForExtension(id):null;
+  const settingsApi=window.AgentExtensionSettings&&id?window.AgentExtensionSettings.settingsForExtension(id):null;
   if(!settingsApi||!settingsApi.trusted){
     return '<div class="extension-settings-empty">Reload WebUI after enabling or installing this extension to edit browser-local settings.</div>';
   }
@@ -9879,7 +9919,7 @@ function _extensionSettingsControls(entry){
 function _extensionConfigureButton(entry,surface){
   if(surface!=='installed'||!(entry&&entry.effective_enabled)) return '';
   const id=(entry&&entry.id)||'';
-  const runtime=window.HermesExtensionSettings;
+  const runtime=window.AgentExtensionSettings;
   if(!id||!runtime||typeof runtime._configureStateForExtension!=='function') return '';
   const state=runtime._configureStateForExtension(id);
   if(!state||!state.available) return '';
@@ -10220,7 +10260,7 @@ function _bindExtensionConfigureButtons(root){
 }
 
 function _syncExtensionConfigureButtonState(id){
-  const runtime=window.HermesExtensionSettings;
+  const runtime=window.AgentExtensionSettings;
   if(!runtime||typeof runtime._configureStateForExtension!=='function') return;
   const state=runtime._configureStateForExtension(id);
   document.querySelectorAll('[data-extension-configure-id]').forEach(btn=>{
@@ -10235,7 +10275,7 @@ function _syncExtensionConfigureButtonState(id){
 function handleExtensionConfigure(btn){
   if(!btn||btn.disabled) return;
   const id=btn.dataset.extensionConfigureId||'';
-  const runtime=window.HermesExtensionSettings;
+  const runtime=window.AgentExtensionSettings;
   if(!id||!runtime||typeof runtime._invokeConfigure!=='function') return;
   runtime._invokeConfigure(id,{
     opener:btn,
@@ -10310,8 +10350,8 @@ function _readExtensionSettingsForm(row){
 }
 
 function _fillExtensionSettingsForm(row,id){
-  if(!window.HermesExtensionSettings) return;
-  const values=window.HermesExtensionSettings.settingsForExtension(id).values;
+  if(!window.AgentExtensionSettings) return;
+  const values=window.AgentExtensionSettings.settingsForExtension(id).values;
   row.querySelectorAll('[data-extension-setting-input]').forEach(input=>{
     const key=input.dataset.extensionSettingInput||'';
     const type=input.dataset.extensionSettingType||'';
@@ -10337,8 +10377,8 @@ function _bindExtensionSettingsButtons(root){
 function handleExtensionSettingsSave(btn){
   const id=btn&&btn.dataset.extensionSettingsSave;
   const row=btn&&btn.closest('[data-extension-id]');
-  if(!id||!row||!window.HermesExtensionSettings) return;
-  const api=window.HermesExtensionSettings.settingsForExtension(id);
+  if(!id||!row||!window.AgentExtensionSettings) return;
+  const api=window.AgentExtensionSettings.settingsForExtension(id);
   const result=api.setAll(_readExtensionSettingsForm(row));
   if(!result.ok){
     showToast('Extension settings contain invalid values.');
@@ -10351,16 +10391,16 @@ function handleExtensionSettingsSave(btn){
 function handleExtensionSettingsReset(btn){
   const id=btn&&btn.dataset.extensionSettingsReset;
   const row=btn&&btn.closest('[data-extension-id]');
-  if(!id||!row||!window.HermesExtensionSettings) return;
-  window.HermesExtensionSettings.settingsForExtension(id).reset();
+  if(!id||!row||!window.AgentExtensionSettings) return;
+  window.AgentExtensionSettings.settingsForExtension(id).reset();
   _fillExtensionSettingsForm(row,id);
   showToast('Extension settings reset in this browser.');
 }
 
 function handleExtensionStorageClear(btn){
   const id=btn&&btn.dataset.extensionStorageClear;
-  if(!id||!window.HermesExtensionSettings) return;
-  window.HermesExtensionSettings.storageForExtension(id).clear();
+  if(!id||!window.AgentExtensionSettings) return;
+  window.AgentExtensionSettings.storageForExtension(id).clear();
   showToast('Extension storage cleared in this browser.');
 }
 
@@ -10415,8 +10455,8 @@ function _handleExtensionConfigureChange(change){
   }
 }
 
-if(window.HermesExtensionSettings&&typeof window.HermesExtensionSettings._onConfigureChange==='function'){
-  window.HermesExtensionSettings._onConfigureChange(_handleExtensionConfigureChange);
+if(window.AgentExtensionSettings&&typeof window.AgentExtensionSettings._onConfigureChange==='function'){
+  window.AgentExtensionSettings._onConfigureChange(_handleExtensionConfigureChange);
 }
 
 function _extensionSafeHttpUrl(value){
@@ -12108,7 +12148,7 @@ function _applySavedSettingsUi(saved, body, opts){
   if(Object.prototype.hasOwnProperty.call(body,'structured_code_default_view')){
     _applyStructuredCodeViewSettings(body.structured_code_default_view,body.structured_code_auto_tree_lines,false);
   }
-  window._botName=body.bot_name||'Hermes';
+  window._botName=body.bot_name||'Agent';
   if(typeof applyBotName==='function') applyBotName();
   else if(typeof _applyBusyComposerPlaceholder==='function') _applyBusyComposerPlaceholder();
   if(typeof setLocale==='function') setLocale(language);
@@ -12145,8 +12185,8 @@ function _applySavedSettingsUi(saved, body, opts){
   _settingsFontSizeOnOpen=fontSize||localStorage.getItem('hermes-font-size')||'default';
   const bar=$('settingsUnsavedBar');
   if(bar) bar.style.display='none';
-  _settingsHermesDefaultModelOnOpen=body.default_model||_settingsHermesDefaultModelOnOpen||'';
-  if(Object.prototype.hasOwnProperty.call(body,'default_model_provider')) _settingsHermesDefaultModelProviderOnOpen=body.default_model_provider||null;
+  _settingsAgentDefaultModelOnOpen=body.default_model||_settingsAgentDefaultModelOnOpen||'';
+  if(Object.prototype.hasOwnProperty.call(body,'default_model_provider')) _settingsAgentDefaultModelProviderOnOpen=body.default_model_provider||null;
   // Sync window._defaultModel so newSession() uses the just-saved default without a reload (#908).
   if(body.default_model) window._defaultModel=body.default_model;
   if(Object.prototype.hasOwnProperty.call(body,'default_model_provider')) window._activeProvider=body.default_model_provider||null;
@@ -12492,7 +12532,7 @@ function _openAuxAdvancedOptions(taskCfg,cfg){
    ? `<label style="display:grid;gap:4px;font-size:12px;color:var(--text)"><span style="font-weight:600">${esc(t('settings_main_advanced_service_tier')||'Service tier')}</span><select id="auxAdvancedServiceTier" style="width:100%;box-sizing:border-box;padding:7px 8px;background:var(--code-bg);color:var(--text);border:1px solid var(--border2);border-radius:6px;font-size:12px"><option value=""${selectedServiceTier?'':' selected'}>${esc(t('settings_main_advanced_service_tier_default')||'Default / off')}</option><option value="priority"${selectedServiceTier==='priority'?' selected':''}>${esc(t('settings_main_advanced_service_tier_priority')||'Priority (fast)')}</option></select><span style="font-size:10px;color:var(--muted);line-height:1.35">${esc(t('settings_main_advanced_service_tier_desc')||'Optional request setting for OpenAI-family providers.')}</span></label>`
    : '';
   const timingFields=isMain?'':(
-   _auxAdvancedInputHtml('auxAdvancedTimeout',t('settings_aux_advanced_timeout')||'Timeout seconds',_auxAdvancedValue(cfg,'timeout'),t('settings_aux_advanced_timeout_desc')||'Request timeout for this auxiliary task. Blank uses Hermes default.','number','inputmode="numeric" min="1" step="1"')+
+   _auxAdvancedInputHtml('auxAdvancedTimeout',t('settings_aux_advanced_timeout')||'Timeout seconds',_auxAdvancedValue(cfg,'timeout'),t('settings_aux_advanced_timeout_desc')||'Request timeout for this auxiliary task. Blank uses Agent default.','number','inputmode="numeric" min="1" step="1"')+
    _auxAdvancedInputHtml('auxAdvancedDownloadTimeout',t('settings_aux_advanced_download_timeout')||'Download timeout seconds',_auxAdvancedValue(cfg,'download_timeout'),t('settings_aux_advanced_download_timeout_desc')||'Only relevant for tasks that download media/content, e.g. vision. Blank uses default.','number','inputmode="numeric" min="1" step="1"')+
    _auxAdvancedInputHtml('auxAdvancedMaxConcurrency',t('settings_aux_advanced_max_concurrency')||'Max concurrency',_auxAdvancedValue(cfg,'max_concurrency'),t('settings_aux_advanced_max_concurrency_desc')||'Optional per-task concurrency limit. Blank uses default.','number','inputmode="numeric" min="1" step="1"'));
   body.innerHTML=
@@ -12836,7 +12876,7 @@ async function saveSettings(andClose){
   body.default_message_mode=defaultMessageMode;
   body.auto_title_refresh_every=(($('settingsAutoTitleRefresh')||{}).value||'0');
   const botName=(($('settingsBotName')||{}).value||'').trim();
-  body.bot_name=botName||'Hermes';
+  body.bot_name=botName||'Agent';
   // Password: only act if the field has content; blank = leave auth unchanged
   if(pw && pw.trim()){
     const currentPwField=$('settingsCurrentPassword');

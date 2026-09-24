@@ -684,7 +684,7 @@ function _micToastKeyForRecognitionError(error){
   // Persist SR failure across reloads (e.g. Tailscale/network error)
   const _micForceMediaRecorderKey='mic_force_mediarecorder';
   const _micForceMediaRecorderStored=localStorage.getItem(_micForceMediaRecorderKey);
-  // Prefer Hermes server-side STT (MediaRecorder -> /api/transcribe) only
+  // Prefer Agent server-side STT (MediaRecorder -> /api/transcribe) only
   // after the server confirms an STT provider is available. No stored key must
   // keep browser SpeechRecognition as the first-click default until then; that
   // avoids dropping the first dictation on installs without server STT.
@@ -2102,7 +2102,7 @@ $('btnDownload').onclick=()=>{
   if(!S.session)return;
   const blob=new Blob([transcript()],{type:'text/markdown'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`hermes-${S.session.session_id}.md`;a.click();URL.revokeObjectURL(a.href);
+  a.download=`agent-${S.session.session_id}.md`;a.click();URL.revokeObjectURL(a.href);
 };
 function _buildSessionExportUrl(sessionId,params){
   const url=new URL('api/session/export',document.baseURI||location.href);
@@ -2116,7 +2116,7 @@ $('btnExportJSON').onclick=()=>{
   if(!S.session)return;
   const url=_buildSessionExportUrl(S.session.session_id);
   const a=document.createElement('a');a.href=url;
-  a.download=`hermes-${S.session.session_id}.json`;a.click();
+  a.download=`agent-${S.session.session_id}.json`;a.click();
 };
 $('btnShareSession').onclick=async()=>{
   if(!S.session) return;
@@ -2193,7 +2193,7 @@ function exportSessionHTML(session){
   const paletteB64=btoa(unescape(encodeURIComponent(JSON.stringify(clean))));
   const url=_buildSessionExportUrl(sid,{format:'html',theme,palette:paletteB64});
   const a=document.createElement('a');a.href=url;
-  a.download=`hermes-${sid}.html`;a.click();
+  a.download=`agent-${sid}.html`;a.click();
 }
 $('btnExportHTML').onclick=()=>exportSessionHTML();
 $('btnImportJSON').onclick=()=>$('importFileInput').click();
@@ -2910,7 +2910,7 @@ function _buildSkinPicker(activeSkin){
     btn.style.cssText='border:1px solid var(--border2);border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;background:none;transition:all .15s';
     btn.onclick=()=>_pickSkin(key);
     // Build with DOM nodes + textContent so an extension-registered skin's
-    // label/name (registerHermesSkin descriptor) can never inject markup into
+    // label/name (registerAgentSkin descriptor) can never inject markup into
     // the picker. Swatch colors are already value-sanitized upstream, but set
     // them via element.style.background (not interpolated HTML) as defense in depth.
     const dotRow=document.createElement('div');
@@ -2934,7 +2934,7 @@ function _buildSkinPicker(activeSkin){
 // ── Extension-registered skins (theme-registration capability) ───────────────
 // Lets a trusted local extension contribute a custom skin that appears in the
 // NATIVE skin picker (rather than bolting on a parallel theme switcher). An
-// extension calls window.registerHermesSkin(descriptor); core validates +
+// extension calls window.registerAgentSkin(descriptor); core validates +
 // sanitizes it, injects a managed <style> rule for its CSS-variable tokens,
 // appends it to _SKINS so the picker renders it, and re-applies the persisted
 // selection if it was waiting on this (late-registered) skin.
@@ -2997,7 +2997,7 @@ function _renderExtensionSkinStyles(){
 }
 
 // Public API for extensions. Returns true on success, false if rejected.
-function registerHermesSkin(descriptor){
+function registerAgentSkin(descriptor){
   try{
     if(!descriptor||typeof descriptor!=='object') return false;
     const name=String(descriptor.name||'').trim();
@@ -3039,7 +3039,11 @@ function registerHermesSkin(descriptor){
     return true;
   }catch(_){ return false; }
 }
-if(typeof window!=='undefined') window.registerHermesSkin=registerHermesSkin;
+const registerHermesSkin=registerAgentSkin;
+if(typeof window!=='undefined'){
+  window.registerAgentSkin=registerAgentSkin;
+  window.registerHermesSkin=registerAgentSkin;
+}
 
 function applyBotName(){
   // The saved assistant name applies to the default profile only.
@@ -3057,7 +3061,7 @@ function applyBotName(){
   if(typeof _applyBusyComposerPlaceholder==='function') _applyBusyComposerPlaceholder();
 }
 
-const _COMPOSER_CONTROL_TOGGLE_DEFS=[
+var _COMPOSER_CONTROL_TOGGLE_DEFS=window._COMPOSER_CONTROL_TOGGLE_DEFS||[
   {key:'hide_composer_attach',label:'Attach',labelKey:'composer_control_attach',selectors:['#btnAttach'],orderSelector:'#btnAttach',orderGroup:'left'},
   {key:'hide_composer_saved_prompts',label:'Saved prompts',labelKey:'composer_control_saved_prompts',selectors:['#btnSavedPrompts'],orderSelector:'#btnSavedPrompts',orderGroup:'left'},
   {key:'hide_composer_mic',label:'Mic',labelKey:'composer_control_mic',selectors:['#btnMic'],orderSelector:'#btnMic',orderGroup:'left'},
@@ -3069,7 +3073,7 @@ const _COMPOSER_CONTROL_TOGGLE_DEFS=[
 ];
 window._COMPOSER_CONTROL_TOGGLE_DEFS=_COMPOSER_CONTROL_TOGGLE_DEFS;
 
-const _COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS=[
+var _COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS=window._COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS||[
   {key:'hide_composer_voice_mode',label:'Voice mode',labelKey:'composer_control_voice_mode',selectors:['#btnVoiceMode'],orderSelector:'#btnVoiceMode',orderGroup:'left'},
   {key:'hide_composer_yolo',label:'YOLO',labelKey:'composer_control_yolo',selectors:['#yoloPill'],orderSelector:'#yoloPill',orderGroup:'left'},
   {key:'hide_composer_bg_badge',label:'Background badge',labelKey:'composer_control_bg_badge',selectors:['#bgBadge'],orderSelector:'#bgBadge',orderGroup:'right'},
@@ -3081,7 +3085,13 @@ const _COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS=[
 window._COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS=_COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS;
 
 function _allComposerControlToggleDefs(){
-  return _COMPOSER_CONTROL_TOGGLE_DEFS.concat(_COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS);
+  const base = Array.isArray(window._COMPOSER_CONTROL_TOGGLE_DEFS)
+    ? window._COMPOSER_CONTROL_TOGGLE_DEFS
+    : (typeof _COMPOSER_CONTROL_TOGGLE_DEFS !== 'undefined' && Array.isArray(_COMPOSER_CONTROL_TOGGLE_DEFS) ? _COMPOSER_CONTROL_TOGGLE_DEFS : []);
+  const situational = Array.isArray(window._COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS)
+    ? window._COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS
+    : (typeof _COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS !== 'undefined' && Array.isArray(_COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS) ? _COMPOSER_SITUATIONAL_CONTROL_TOGGLE_DEFS : []);
+  return base.concat(situational);
 }
 
 function _sanitizeComposerControlOrder(order){
@@ -3353,7 +3363,7 @@ window._mirrorSpeechSettingsFromServer=_mirrorSpeechSettingsFromServer;
     _applyComposerControlOrder(window._composerControlOrder);
     window._showTitlebarProfile=!!s.show_titlebar_profile;
     _applyTitlebarProfileVisibility();
-    window._botName=s.bot_name||'Hermes';
+    window._botName=s.bot_name||'Agent';
     if(s.default_model_provider) window._activeProvider=s.default_model_provider;
     if(s.default_model){
       window._defaultModel=s.default_model;
@@ -3496,7 +3506,7 @@ window._mirrorSpeechSettingsFromServer=_mirrorSpeechSettingsFromServer;
     window._composerControlVisibility=_composerControlVisibilityFromSettings(null);
     window._composerControlOrder=[];
     _applyComposerControlOrder(window._composerControlOrder);
-    window._botName='Hermes';
+    window._botName='Agent';
     _bootSettings={check_for_updates:false};
     if(typeof setLocale==='function'){
       const _lang=typeof resolvePreferredLocale==='function'
@@ -3740,8 +3750,8 @@ window._mirrorSpeechSettingsFromServer=_mirrorSpeechSettingsFromServer;
   if (typeof syncSessionSearchClear === 'function') syncSessionSearchClear();
   if(typeof refreshProviderQuotaIndicator==='function') refreshProviderQuotaIndicator();
   const urlSession=(typeof _sessionIdFromLocation==='function')?_sessionIdFromLocation():null;
-  const pwaLaunchAction=(window.HermesPWA&&typeof window.HermesPWA.launchAction==='function')
-    ? window.HermesPWA.launchAction()
+  const pwaLaunchAction=(window.AgentPWA&&typeof window.AgentPWA.launchAction==='function')
+    ? window.AgentPWA.launchAction()
     : null;
   if(_shouldStartFreshPwaChat(pwaLaunchAction,urlSession)){
     try{
@@ -3921,8 +3931,8 @@ window.addEventListener('pageshow', async (event) => {
 
 async function shutdownServer() {
   const ok = await showConfirmDialog({
-    title: (typeof t === 'function' ? t('settings_shutdown_confirm_title') : 'Stop Hermes WebUI'),
-    message: (typeof t === 'function' ? t('settings_shutdown_confirm_message') : 'Stop the Hermes WebUI server?'),
+    title: (typeof t === 'function' ? t('settings_shutdown_confirm_title') : 'Stop Agent'),
+    message: (typeof t === 'function' ? t('settings_shutdown_confirm_message') : 'Stop the Agent server?'),
     confirmLabel: (typeof t === 'function' ? t('settings_shutdown_confirm_btn') : 'Stop'),
     danger: true,
   });

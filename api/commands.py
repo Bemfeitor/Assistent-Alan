@@ -364,7 +364,7 @@ def _run_credits_command() -> str:
         return "Couldn't fetch credits right now."
 
     if not getattr(view, "logged_in", False):
-        return "Not logged into Nous. Run `hermes auth login nous` in Hermes CLI, then try /credits again."
+        return "Not logged into Nous. Run `hermes auth login nous` in Agent CLI, then try /credits again."
 
     lines = ["💳 **Nous credits**"]
     for line in tuple(getattr(view, "balance_lines", ()) or ()):

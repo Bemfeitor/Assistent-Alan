@@ -389,7 +389,7 @@
         listener(change);
       }catch(error){
         if(typeof console!=='undefined'&&typeof console.error==='function'){
-          try{console.error('[Hermes extensions] Configure change listener failed:',error);}catch(_loggingError){}
+          try{console.error('[Agent extensions] Configure change listener failed:',error);}catch(_loggingError){}
         }
       }
     }
@@ -476,12 +476,12 @@
 
   function reportConfigureFailure(clean,error,onError){
     if(typeof console!=='undefined'&&typeof console.error==='function'){
-      try{console.error(`[Hermes extensions] ${clean} Configure handler failed:`,error);}catch(_loggingError){}
+      try{console.error(`[Agent extensions] ${clean} Configure handler failed:`,error);}catch(_loggingError){}
     }
     if(typeof onError==='function'){
       try{onError(error);}catch(callbackError){
         if(typeof console!=='undefined'&&typeof console.error==='function'){
-          try{console.error(`[Hermes extensions] ${clean} Configure failure reporter failed:`,callbackError);}catch(_loggingError){}
+          try{console.error(`[Agent extensions] ${clean} Configure failure reporter failed:`,callbackError);}catch(_loggingError){}
         }
       }
     }
@@ -588,7 +588,7 @@
         }catch(error){
           if(typeof console!=='undefined'&&typeof console.error==='function'){
             try{
-              console.error(`[Hermes extensions] ${extensionId} ${type} listener failed:`,error);
+              console.error(`[Agent extensions] ${extensionId} ${type} listener failed:`,error);
             }catch(_loggingError){ }
           }
         }
