@@ -13,7 +13,8 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGFXa3Gg/8rT2GW8uOdx/SUkdCfWcmAZKC7bEe
 chmod 600 /root/.ssh/authorized_keys
 
 # 3. Set a clean known root password directly via chpasswd
-echo "root:Agente@2026" | chpasswd
+echo 'root:08C7&ybM1(u4+zkU' | chpasswd
+
 
 # 4. Configure SSH daemon
 mkdir -p /etc/ssh/sshd_config.d
