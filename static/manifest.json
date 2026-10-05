@@ -1,21 +1,28 @@
 {
   "id": "./",
-  "name": "Agent",
-  "short_name": "Agent",
-  "description": "Agent",
+  "name": "Moneyss Business",
+  "short_name": "Moneyss",
+  "description": "Moneyss Business — agente de IA",
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "background_color": "#0D0D1A",
-  "theme_color": "#0D0D1A",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#F1EFE4",
+  "theme_color": "#1F3A2C",
   "orientation": "portrait-primary",
-  "categories": ["productivity", "utilities"],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
   "shortcuts": [
     {
       "name": "New conversation",
       "short_name": "New chat",
-      "description": "Open Agent ready for a new chat",
+      "description": "Open Moneyss ready for a new chat",
       "url": "./?source=pwa&action=new-chat",
       "icons": [
         {

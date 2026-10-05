@@ -49,6 +49,10 @@ def custom_defaults(monkeypatch):
 
 
 def _write(f, payload):
+    # Files written after the Moneyss rebrand carry the one-time migration
+    # marker, so these tests exercise the appearance normalisation itself.
+    # The pre-rebrand path (no marker) is covered in test_moneyss_skin.py.
+    payload = {"moneyss_brand_v1": True, **payload}
     f.write_text(json.dumps(payload), encoding="utf-8")
 
 
@@ -75,14 +79,14 @@ def test_defaults_are_used_when_file_has_no_appearance_keys(settings_file, custo
 # ── no behaviour change on stock defaults ─────────────────────────────────
 
 def test_stock_defaults_are_unchanged_by_the_guard(settings_file):
-    """On the shipped defaults this fix is a no-op — both paths give dark/default."""
+    """On the shipped defaults this fix is a no-op — both paths give light/moneyss."""
     assert not settings_file.exists()
     s = config.load_settings()
     assert (s["theme"], s["skin"]) == (
         config._SETTINGS_DEFAULTS["theme"],
         config._SETTINGS_DEFAULTS["skin"],
     )
-    assert (s["theme"], s["skin"]) == ("dark", "default")
+    assert (s["theme"], s["skin"]) == ("light", "moneyss")
 
 
 # ── a stored preference still wins, exactly as before ─────────────────────
