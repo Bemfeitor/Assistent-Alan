@@ -10926,43 +10926,48 @@ def _resolve_login_locale_key(raw_lang: str | None) -> str:
 _LOGIN_PAGE_HTML = """<!doctype html>
 <html lang="{{LANG}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{BOT_NAME}} — {{LOGIN_TITLE}}</title>
+<link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32.png?v=moneyss-brand-1">
+<link rel="shortcut icon" href="static/favicon.ico?v=moneyss-brand-1">
+<meta name="theme-color" content="#22352A">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#1a1a2e;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
-  height:100vh;display:flex;align-items:center;justify-content:center}
-.card{background:#16213e;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:36px 32px;
-  width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3)}
-.logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(145deg,#e8a030,#e94560);
-  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;color:#fff;
-  margin:0 auto 12px;box-shadow:0 2px 12px rgba(233,69,96,.3)}
-h1{font-size:18px;font-weight:600;margin-bottom:4px}
-.sub{font-size:12px;color:#8888aa;margin-bottom:24px}
-input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.04);color:#e8e8f0;font-size:14px;outline:none;margin-bottom:14px;
-  transition:border-color .15s}
-input:focus{border-color:rgba(124,185,255,.5);box-shadow:0 0 0 3px rgba(124,185,255,.1)}
-button{width:100%;padding:10px;border-radius:10px;border:none;background:rgba(124,185,255,.15);
-  border:1px solid rgba(124,185,255,.3);color:#7cb9ff;font-size:14px;font-weight:600;cursor:pointer;
-  transition:all .15s}
-button:hover{background:rgba(124,185,255,.25)}
+body{background-color:#F3F1E7;background-image:url("static/moneyss-guilloche.svg");background-size:cover;
+  background-position:center;color:#1C2620;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.card{background:rgba(249,248,241,.96);border:1px solid #CDC8B2;border-radius:18px;padding:32px 30px 28px;
+  width:360px;max-width:100%;text-align:center;box-shadow:0 10px 40px rgba(31,58,44,.18),inset 0 0 0 4px rgba(249,248,241,1),inset 0 0 0 5px rgba(31,58,44,.16)}
+.logo{display:block;width:176px;height:176px;margin:0 auto 14px;border-radius:14px;object-fit:cover;
+  box-shadow:0 4px 18px rgba(31,58,44,.20),0 0 0 1px rgba(31,58,44,.16)}
+h1{font-family:"Times New Roman",Georgia,"Liberation Serif",serif;font-size:21px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:#1C2620;margin-bottom:6px}
+.sub{font-size:13px;color:#4A584E;margin-bottom:22px}
+input{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #B9B39C;
+  background:#fff;color:#1C2620;font-size:14px;outline:none;margin-bottom:14px;transition:border-color .15s,box-shadow .15s}
+input::placeholder{color:#5F6B62;opacity:1}
+input:focus{border-color:#2E5E45;box-shadow:0 0 0 3px rgba(46,94,69,.18)}
+button{width:100%;padding:11px;border-radius:10px;border:1px solid #2E5E45;background:#2E5E45;
+  color:#FFFCEE;font-size:14px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:background .15s}
+button:hover{background:#234A36;border-color:#234A36}
+button:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(46,94,69,.35)}
 .oidc-login{display:block;margin-top:10px;padding:10px;border-radius:10px;text-decoration:none;
-  background:rgba(255,255,255,.04);border:1px solid rgba(111,214,164,.35);color:#6fd6a4;
+  background:#fff;border:1px solid #2E5E45;color:#22503A;
   font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
-.oidc-login:hover{background:rgba(111,214,164,.12)}
-.passkey-login{margin-top:10px;background:rgba(255,255,255,.04);border-color:rgba(232,160,48,.35);color:#e8a030}
-.err{color:#e94560;font-size:12px;margin-top:10px;display:none}
+.oidc-login:hover{background:rgba(46,94,69,.10)}
+.passkey-login{margin-top:10px;background:#fff;border-color:#7D5F17;color:#6A500F}
+.passkey-login:hover{background:rgba(201,165,78,.16)}
+.err{color:#AE2A1F;font-size:12px;margin-top:10px;display:none}
 </style></head><body>
 <div class="card">
-  <div class="logo">{{BOT_NAME_INITIAL}}</div>
-  <h1>{{BOT_NAME}}</h1>
+  <img class="logo" src="static/moneyss-logo.webp?v=moneyss-brand-1" alt="Money$$ Business" width="176" height="176">
+  <h1>Money$$ Business</h1>
   <p class="sub">{{LOGIN_SUBTITLE}}</p>
   <form id="login-form" data-invalid-pw="{{LOGIN_INVALID_PW}}" data-conn-failed="{{LOGIN_CONN_FAILED}}">
-    <input type="password" id="pw" placeholder="{{LOGIN_PLACEHOLDER}}" autofocus>
+    <input type="password" id="pw" placeholder="{{LOGIN_PLACEHOLDER}}" aria-label="{{LOGIN_PLACEHOLDER}}" autofocus>
     <button type="submit">{{LOGIN_BTN}}</button>
     <button type="button" id="passkey-login" class="passkey-login" style="display:none">Sign in with passkey</button>
     {{OIDC_LOGIN_HTML}}
   </form>
-  <div class="err" id="err"></div>
+  <div class="err" id="err" role="alert"></div>
 </div>
 <!-- Keep login.js relative so subpath mounts load it under the current scope. -->
 <script src="static/login.js?v={{WEBUI_VERSION}}"></script>

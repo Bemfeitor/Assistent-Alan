@@ -9934,8 +9934,12 @@ _SETTINGS_DEFAULTS = {
     "voice_continuous": False,
     "voice_silence_ms": 1800,
     "raw_audio_mode": False,
-    "theme": "dark",  # light | dark | system
-    "skin": "default",  # accent color skin: default | ares | mono | graphite | slate | poseidon | sisyphus | charizard | sienna | catppuccin | nous
+    "theme": "light",  # light | dark | system
+    "skin": "moneyss",  # accent color skin: moneyss (brand default) | default | ares | mono | graphite | slate | poseidon | sisyphus | charizard | sienna | catppuccin | nous
+    # One-time Moneyss Business brand migration marker. While False, a stored
+    # "default" skin from before the rebrand is shown as "moneyss"; the first
+    # settings save persists True so a later explicit "default" pick sticks.
+    "moneyss_brand_v1": False,
     "font_size": "default",  # small | default | large | xlarge
     "session_jump_buttons": False,  # show Start/End transcript jump pills
     "render_user_markdown": False,  # opt-in: render full markdown in user messages (#3870)
@@ -10018,6 +10022,7 @@ _COMPOSER_CONTROL_ORDER_KEYS = {
 }
 _SETTINGS_THEME_VALUES = {"light", "dark", "system"}
 _SETTINGS_SKIN_VALUES = {
+    "moneyss",
     "default",
     "ares",
     "mono",
@@ -10206,6 +10211,11 @@ def load_settings() -> dict:
         stored.get("theme") if _has_stored_appearance else settings.get("theme"),
         stored.get("skin") if _has_stored_appearance else settings.get("skin"),
     )
+    if (
+        settings["skin"] == "default"
+        and not (isinstance(stored, dict) and stored.get("moneyss_brand_v1"))
+    ):
+        settings["skin"] = "moneyss"
     settings["default_model"] = get_effective_default_model()
     try:
         model_cfg = get_config().get("model", {})
@@ -10523,6 +10533,7 @@ def save_settings(settings: dict) -> dict:
         if raw_theme not in _SETTINGS_THEME_VALUES:
             skin_value = None
     current["theme"], current["skin"] = _normalize_appearance(theme_value, skin_value)
+    current["moneyss_brand_v1"] = True
 
     current["default_workspace"] = str(
         resolve_default_workspace(current.get("default_workspace"))

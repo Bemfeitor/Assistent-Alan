@@ -7324,3 +7324,204 @@ html[data-conversation-outline="enabled"] #outlineToggleBtn:not([hidden]){displa
 /* Settings field highlight (mirrors msg-question-highlight / _highlightQuestionRow pattern) */
 .settings-field-highlight { animation: settings-field-pulse 1.6s ease-out; }
 @keyframes settings-field-pulse { 0% { box-shadow: 0 0 0 0 var(--focus-ring); } 35% { box-shadow: 0 0 0 4px var(--focus-ring); } 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); } }
+
+/* ═══ MONEYSS BUSINESS — US $100 banknote palette (light-only) ═══
+   Paper-money cream surfaces with guilloche linework for the main canvas,
+   deep "greenback" ink for the rail + sidebar, and gold/olive highlights.
+   The skin is registered with scheme:'light' (boot.js), so the base .dark
+   class is never applied while it is active; the :root.dark selector below
+   is only a safety net for the pre-paint frame.
+
+   Contrast contract (WCAG AA, 4.5:1 for body text):
+   - Paper zone (main canvas, titlebar, composer, popovers, modals) uses
+     dark ink tokens on #F3F1E7.
+   - Ink zone (.rail, .sidebar) re-declares the full token set with light
+     text on #22352A, so every component inside the sidebar that reads
+     var(--text)/var(--muted)/var(--accent-text) automatically flips.
+   - The active session pill is an olive "seal" (#CFC98F) that flips the
+     tokens back to dark ink for its own subtree. */
+:root[data-skin="moneyss"],
+:root.dark[data-skin="moneyss"]{
+  color-scheme:light;
+  --bg:#F3F1E7;--sidebar:#ECE9DB;--surface:#F9F8F1;--code-bg:#E8E5D6;
+  --border:#CDC8B2;--border2:rgba(31,58,44,0.24);--border-subtle:rgba(31,58,44,0.11);--border-muted:rgba(31,58,44,0.17);
+  --text:#1C2620;--strong:#0E1611;--muted:#3F4D43;--em:#33443A;
+  --accent:#2E5E45;--accent-hover:#234A36;--accent-bg:rgba(46,94,69,0.10);--accent-bg-strong:rgba(46,94,69,0.18);--accent-text:#22503A;
+  --blue:#24577F;--gold:#7D5F17;--link:#24577F;
+  --focus-ring:rgba(46,94,69,0.38);--focus-glow:rgba(46,94,69,0.12);
+  --input-bg:rgba(255,255,255,0.55);--hover-bg:rgba(31,58,44,0.07);
+  --surface-subtle:rgba(31,58,44,0.035);--surface-subtle-hover:rgba(31,58,44,0.065);
+  --code-text:#7A3B10;--code-inline-bg:rgba(31,58,44,0.08);--pre-text:#1C2620;
+  --topbar-bg:rgba(236,233,219,0.96);--main-bg:#F3F1E7;
+  --error:#AE2A1F;--success:#276B43;--warning:#8A5300;--info:#24577F;--danger:#AE2A1F;
+  --user-bubble-bg:#DDE5D5;--user-bubble-border:#BFCDB6;--user-bubble-text:#16201A;--user-bubble-placeholder:#4A584E;
+  --user-selection-bg:rgba(46,94,69,0.22);--user-selection-text:#0E1611;
+  --logo-glow:radial-gradient(circle,rgba(46,94,69,0.16) 0%,rgba(201,165,78,0.10) 45%,transparent 70%);
+  --moneyss-ink:#22352A;--moneyss-ink-deep:#1A2A21;--moneyss-gold:#C9A54E;--moneyss-seal:#CFC98F;
+}
+:root[data-skin="moneyss"] body{background:var(--bg);}
+/* Ink zone: rail + sidebar (every panel's list column) */
+:root[data-skin="moneyss"] .rail,
+:root[data-skin="moneyss"] .sidebar{
+  color-scheme:dark;
+  --bg:#1E3026;--sidebar:#22352A;--surface:#2A4034;--code-bg:#182820;
+  --border:#3B5446;--border2:rgba(239,234,214,0.22);--border-subtle:rgba(239,234,214,0.10);--border-muted:rgba(239,234,214,0.16);
+  --text:#F1ECD9;--strong:#FFFCEE;--muted:#CDD6C5;--em:#DCDFCB;
+  --accent:#D9BE6E;--accent-hover:#E8D08A;--accent-bg:rgba(217,190,110,0.14);--accent-bg-strong:rgba(217,190,110,0.26);--accent-text:#E8CF86;
+  --blue:#A9CBEA;--gold:#E2C677;--link:#A9CBEA;
+  --focus-ring:rgba(217,190,110,0.5);--focus-glow:rgba(217,190,110,0.14);
+  --input-bg:rgba(255,255,255,0.07);--hover-bg:rgba(255,255,255,0.08);
+  --surface-subtle:rgba(255,255,255,0.04);--surface-subtle-hover:rgba(255,255,255,0.075);
+  --code-text:#F0C98A;--code-inline-bg:rgba(0,0,0,0.25);--pre-text:#F1ECD9;
+  --error:#FF9A8F;--success:#9BD8A8;--warning:#F2C46B;--info:#A9CBEA;--danger:#FF9A8F;
+  color:var(--text);
+}
+:root[data-skin="moneyss"] .rail{background:var(--moneyss-ink-deep);border-right-color:#14211A;}
+:root[data-skin="moneyss"] .sidebar{background:var(--moneyss-ink);border-right-color:#14211A;}
+:root[data-skin="moneyss"] .sidebar input::placeholder{color:#BAC6B2;opacity:1;}
+:root[data-skin="moneyss"] .rail-btn.active,
+:root[data-skin="moneyss"] .rail .nav-tab.active{background:var(--moneyss-seal);color:#1C2620;}
+:root[data-skin="moneyss"] .rail-btn.active::before,
+:root[data-skin="moneyss"] .rail .nav-tab.active::before{background:var(--moneyss-gold);}
+/* Olive "seal" for the active item: flip tokens back to dark ink for its subtree */
+:root[data-skin="moneyss"] .sidebar .session-item.active{
+  --text:#1C2620;--strong:#0E1611;--muted:#3E4C42;--em:#33443A;
+  --accent:#2E5E45;--accent-text:#22503A;--accent-bg:rgba(46,94,69,0.12);--accent-bg-strong:rgba(46,94,69,0.2);
+  --hover-bg:rgba(31,58,44,0.1);--border:#B4AE7A;--surface:#E2DDAE;
+  background:var(--moneyss-seal);color:#1C2620;
+}
+:root[data-skin="moneyss"] .sidebar .session-item.active *{color:inherit;}
+:root[data-skin="moneyss"] .sidebar .session-item.active .session-meta,
+:root[data-skin="moneyss"] .sidebar .session-item.active .session-time{color:#3E4C42;}
+:root[data-skin="moneyss"] .sidebar .new-chat-btn{background:var(--accent);border-color:var(--accent);color:#1C2620;font-weight:600;}
+:root[data-skin="moneyss"] .sidebar .new-chat-btn:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:#1C2620;}
+/* Paper zone: main canvas with guilloche linework */
+:root[data-skin="moneyss"] .main{
+  background-color:var(--bg);
+  background-image:url("moneyss-guilloche.svg");
+  background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:local;
+}
+:root[data-skin="moneyss"] .composer-wrap{background:transparent;}
+:root[data-skin="moneyss"] .composer-box{background:rgba(250,249,243,0.94);border-color:var(--border2);box-shadow:0 1px 3px rgba(31,58,44,0.10);}
+:root[data-skin="moneyss"] .composer-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--focus-glow);}
+:root[data-skin="moneyss"] .btn.primary,
+:root[data-skin="moneyss"] .update-primary,
+:root[data-skin="moneyss"] .clarify-submit,
+:root[data-skin="moneyss"] button.send-btn:not(:disabled){background:var(--accent);border-color:var(--accent);color:#FFFCEE;}
+:root[data-skin="moneyss"] .btn.primary:hover,
+:root[data-skin="moneyss"] .update-primary:hover,
+:root[data-skin="moneyss"] .clarify-submit:hover,
+:root[data-skin="moneyss"] button.send-btn:not(:disabled):hover{background:var(--accent-hover);border-color:var(--accent-hover);}
+:root[data-skin="moneyss"] .msg-body a,
+:root[data-skin="moneyss"] .main a:not(.btn){color:var(--link);}
+/* Titlebar: engraved banner with the Money$$ Business wordmark */
+.app-titlebar-brand{display:none;}
+:root[data-skin="moneyss"] .app-titlebar{background:var(--sidebar);border-bottom:1px solid var(--border);color:var(--text);}
+:root[data-skin="moneyss"] .app-titlebar-title,
+:root[data-skin="moneyss"] .app-titlebar-sub{display:none!important;}
+:root[data-skin="moneyss"] .app-titlebar-brand{
+  display:inline-flex;align-items:center;gap:14px;
+  font-family:"Times New Roman",Georgia,"Liberation Serif",serif;font-size:15px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:#1C2620;white-space:nowrap;
+}
+:root[data-skin="moneyss"] .app-titlebar-inner::before,
+:root[data-skin="moneyss"] .app-titlebar-inner::after{
+  content:"";display:block;width:clamp(24px,18vw,280px);height:1px;flex-shrink:1;
+  background:linear-gradient(90deg,transparent,#8E9A86 30%,#8E9A86 70%,transparent);
+}
+:root[data-skin="moneyss"] .app-titlebar-inner{gap:12px;}
+:root[data-skin="moneyss"] .app-titlebar-icon img{width:22px;height:22px;border-radius:50%;box-shadow:0 0 0 1px rgba(31,58,44,0.35);}
+@media (max-width:640px){
+  :root[data-skin="moneyss"] .app-titlebar-inner::before,
+  :root[data-skin="moneyss"] .app-titlebar-inner::after{display:none;}
+  :root[data-skin="moneyss"] .app-titlebar-brand{font-size:13px;letter-spacing:.1em;}
+}
+/* Empty state: full engraved logo */
+.empty-logo-img{width:200px;max-width:60vw;height:auto;border-radius:16px;}
+:root[data-skin="moneyss"] .empty-logo-img{border-radius:16px;box-shadow:0 6px 24px rgba(31,58,44,0.18),0 0 0 1px rgba(31,58,44,0.14);}
+:root[data-skin="moneyss"]::-webkit-scrollbar-thumb,
+:root[data-skin="moneyss"] *::-webkit-scrollbar-thumb{background:rgba(31,58,44,0.22);}
+:root[data-skin="moneyss"] .sidebar *::-webkit-scrollbar-thumb{background:rgba(239,234,214,0.22);}
+/* Moneyss contrast fixes: base styles dim secondary text with opacity
+   (.5–.6), which drops below 4.5:1 on both the paper and ink zones. Keep
+   the hierarchy with color, not transparency. */
+:root[data-skin="moneyss"] .msg-role.assistant{color:var(--accent-text);opacity:.92;}
+:root[data-skin="moneyss"] .sidebar .session-select-toggle,
+:root[data-skin="moneyss"] .sidebar .project-create-btn{opacity:.88;}
+:root[data-skin="moneyss"] .sidebar .session-select-toggle:hover,
+:root[data-skin="moneyss"] .sidebar .project-create-btn:hover{opacity:1;}
+:root[data-skin="moneyss"] .profile-card-name span[style*="opacity:.5"]{opacity:.82!important;}
+:root[data-skin="moneyss"] #insightsContent [style*="opacity:.6"]{opacity:.9!important;}
+/* Primary buttons inside the ink zone sit on gold: use dark ink text */
+:root[data-skin="moneyss"] .sidebar .btn.primary,
+:root[data-skin="moneyss"] .sidebar .update-primary{color:#1C2620;}
+:root[data-skin="moneyss"] .main-view{background:transparent;}
+/* Moneyss: status colors hard-coded for dark surfaces are re-mapped to
+   AA-safe ink tones on the paper zone. Items that only render inside the
+   ink sidebar (session tags, child counts, source chips) keep their light
+   tones, which already pass on #22352A. */
+:root[data-skin="moneyss"] .detail-badge.ok,
+:root[data-skin="moneyss"] .mcp-http,
+:root[data-skin="moneyss"] .mcp-status-active,
+:root[data-skin="moneyss"] .mcp-toggle-enabled,
+:root[data-skin="moneyss"] .provider-quota-pool-row-available .provider-quota-pool-row-head strong,
+:root[data-skin="moneyss"] .provider-quota-card-available .provider-quota-badge,
+:root[data-skin="moneyss"] .provider-card-badge,
+:root[data-skin="moneyss"] .extension-status-badge-on,
+:root[data-skin="moneyss"] .extension-sidecar-status-healthy,
+:root[data-skin="moneyss"] .extension-gallery-installed-badge,
+:root[data-skin="moneyss"] .tool-card-compress-complete .tool-card-name,
+:root[data-skin="moneyss"] .compression-complete-header,
+:root[data-skin="moneyss"] .onboarding-probe-banner.onboarding-probe-ok,
+:root[data-skin="moneyss"] .diff-block .diff-plus,
+:root[data-skin="moneyss"] .main [style*="color:#22c55e"]{color:var(--success)!important;}
+:root[data-skin="moneyss"] .detail-badge.warn,
+:root[data-skin="moneyss"] .detail-form-warning,
+:root[data-skin="moneyss"] .cron-script-job-banner .detail-alert-title,
+:root[data-skin="moneyss"] .cron-status.attention,
+:root[data-skin="moneyss"] .approval-btn.yolo,
+:root[data-skin="moneyss"] .yolo-pill,
+:root[data-skin="moneyss"] .mcp-status-configured,
+:root[data-skin="moneyss"] .extension-sidecar-status-unhealthy,
+:root[data-skin="moneyss"] .wiki-status-badge.warn,
+:root[data-skin="moneyss"] .log-line-warning,
+:root[data-skin="moneyss"] .logs-hint.warn,
+:root[data-skin="moneyss"] .model-opt-badge--fallback,
+:root[data-skin="moneyss"] .onboarding-oauth-pending .onboarding-oauth-icon,
+:root[data-skin="moneyss"] .main [style*="color:#e8a030"],
+:root[data-skin="moneyss"] .modal [style*="color:#e8a030"]{color:var(--warning)!important;}
+:root[data-skin="moneyss"] .detail-badge.err,
+:root[data-skin="moneyss"] .mcp-status-invalid_config,
+:root[data-skin="moneyss"] .mcp-status-unknown,
+:root[data-skin="moneyss"] .preview-badge.pdf,
+:root[data-skin="moneyss"] .tool-card-compress-error .tool-card-name,
+:root[data-skin="moneyss"] .compression-card-error-row .compression-card-label,
+:root[data-skin="moneyss"] .compression-card-error-body,
+:root[data-skin="moneyss"] .bg-error-banner,
+:root[data-skin="moneyss"] .onboarding-probe-banner.onboarding-probe-error,
+:root[data-skin="moneyss"] .checkpoint-item-actions button.danger:hover,
+:root[data-skin="moneyss"] .diff-block .diff-minus,
+:root[data-skin="moneyss"] .diff-inline-error,
+:root[data-skin="moneyss"] #btnShutdownServer,
+:root[data-skin="moneyss"] .main [style*="color:#ef4444"],
+:root[data-skin="moneyss"] .main [style*="color:#e74c3c"],
+:root[data-skin="moneyss"] .main [style*="color:rgba(220,80,80"]{color:var(--error)!important;}
+:root[data-skin="moneyss"] .detail-badge.running,
+:root[data-skin="moneyss"] .detail-badge.cron-mode-badge.agent,
+:root[data-skin="moneyss"] .model-opt-badge--primary,
+:root[data-skin="moneyss"] .model-opt-badge--selected,
+:root[data-skin="moneyss"] .mcp-stdio{color:var(--info)!important;}
+:root[data-skin="moneyss"] .mcp-unknown,
+:root[data-skin="moneyss"] .mcp-status-disabled,
+:root[data-skin="moneyss"] .mcp-toggle-disabled{color:var(--muted)!important;}
+/* JSON tree viewer inside tool cards */
+:root[data-skin="moneyss"] .tree-key,
+:root[data-skin="moneyss"] .tree-num{color:#24577F;}
+:root[data-skin="moneyss"] .tree-str{color:#276B43;}
+:root[data-skin="moneyss"] .tree-bool{color:#8A5300;}
+:root[data-skin="moneyss"] .model-opt-id,
+:root[data-skin="moneyss"] .ws-opt-path,
+:root[data-skin="moneyss"] .workspace-artifacts-count{opacity:.95;}
+/* Solid paper behind dense content so guilloche lines never cross text */
+:root[data-skin="moneyss"] .msg-body table{background:var(--surface);}
+:root[data-skin="moneyss"] .msg-body td{border-color:var(--border-subtle);}

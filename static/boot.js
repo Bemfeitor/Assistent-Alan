@@ -2691,6 +2691,9 @@ const _THEMES=[
   {name:'System', value:'system', colors:['#FEFCF7','#0D0D1A','#B8860B']},
 ];
 const _SKINS=[
+  // Moneyss Business brand skin (fork default). scheme:'light' keeps the
+  // banknote paper canvas even when the saved Theme is Dark/System-dark.
+  {name:'Moneyss', value:'moneyss', colors:['#22352A','#2E5E45','#C9A54E'], scheme:'light'},
   {name:'Default',  colors:['#FFD700','#FFBF00','#CD7F32']},
   {name:'Ares',     colors:['#FF4444','#CC3333','#992222']},
   {name:'Mono',     colors:['#CCCCCC','#999999','#666666']},
@@ -2774,7 +2777,7 @@ function _findSkinEntry(key){
 function _activeSkinScheme(){
   const key=(document.documentElement.dataset.skin||'default').toLowerCase();
   const skin=_findSkinEntry(key);
-  const scheme=skin&&skin._extScheme;
+  const scheme=skin&&(skin.scheme||skin._extScheme);
   return scheme==='light'||scheme==='dark'?scheme:'';
 }
 

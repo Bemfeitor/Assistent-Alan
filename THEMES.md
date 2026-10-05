@@ -19,7 +19,7 @@ toggles Light/Dark/System; the **Skin** grid offers the built-in accent palettes
 Preview is instant — the UI updates as you click.
 
 **Slash command:** Type `/theme <name>` in the composer. The command accepts
-both theme names (`system`, `dark`, `light`) and skin names (`default`, `ares`,
+both theme names (`system`, `dark`, `light`) and skin names (`moneyss`, `default`, `ares`,
 `mono`, `slate`, `poseidon`, `sisyphus`, `charizard`, `sienna`,
 `catppuccin`, `nous`, `geist-contrast`, `zeus`). It updates the matching axis and leaves the other one
 alone.
@@ -47,6 +47,7 @@ absent for light. System mode tracks the OS preference at runtime.
 
 | Skin | Description |
 |------|-------------|
+| **Moneyss** (`moneyss`, default) | Money$$ Business brand: US $100 banknote palette — cream paper canvas with guilloche linework, deep greenback sidebar, gold/olive highlights. Light-only (`scheme: 'light'`): it keeps the paper canvas even when Theme is Dark. Existing installs on the old `default` skin are migrated once (`moneyss_brand_v1` in `settings.json`); picking another skin afterwards sticks. |
 | **Default** | The original Hermes gold accent. Warm and understated. |
 | **Ares** | Fiery red. High-energy and assertive. |
 | **Mono** | Neutral gray. Distraction-free, for deep focus. |
